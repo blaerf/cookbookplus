@@ -113,6 +113,17 @@ SPDX-License-Identifier: AGPL-3.0-only OR AGPL-3.0-or-later
                                 </span>
                             </p>
                         </div>
+                        <NcButton
+                            v-if="parsedInstructions.length"
+                            class="print-hidden"
+                            variant="primary"
+                            @click="showCookingMode = true"
+                        >
+                            <template #icon>
+                                <ChefHatIcon :size="20" />
+                            </template>
+                            {{ t('cookbook', 'Cooking mode') }}
+                        </NcButton>
                     </div>
                     <div class="times">
                         <RecipeTimer
@@ -353,6 +364,15 @@ SPDX-License-Identifier: AGPL-3.0-only OR AGPL-3.0-or-later
                     </main>
                 </section>
             </div>
+            <CookingMode
+                v-if="showCookingMode"
+                :name="legacyStore.recipe.name"
+                :instructions="parsedInstructions"
+                :ingredients="scaledIngredients"
+                :ingredients-have-subgroups="recipeIngredientsHaveSubgroups"
+                :cook-time="recipe.timerCook"
+                @close="showCookingMode = false"
+            />
         </div>
         <!-- RecipeView container -->
     </div>
@@ -374,6 +394,7 @@ import helpers from 'cookbook/js/helper';
 import normalizeMarkdown from 'cookbook/js/title-rename';
 import { showSimpleAlertModal } from 'cookbook/js/modals';
 import yieldCalculator from 'cookbook/js/yieldCalculator';
+import ChefHatIcon from 'icons/ChefHat.vue';
 import ContentCopyIcon from 'icons/ContentCopy.vue';
 import NcButton from '@nextcloud/vue/components/NcButton';
 import { showError, showSuccess } from '@nextcloud/dialogs';
@@ -383,6 +404,7 @@ import { parseDateTime } from '../../composables/dateTimeHandling';
 import type { Recipe } from '../../types/Recipe';
 import type { RecipeTimer as RecipeTimerValue } from '../../types/RecipeTimer';
 import LoadingIndicator from '../Utilities/LoadingIndicator.vue';
+import CookingMode from './CookingMode.vue';
 import RecipeImages from './RecipeImages.vue';
 import RecipeIngredient from './RecipeIngredient.vue';
 import RecipeInstruction from './RecipeInstruction.vue';
@@ -427,6 +449,7 @@ const parsedTools = ref<string[]>([]);
  * @type {import('vue').Ref<number>}
  */
 const recipeYield = ref(0);
+const showCookingMode = ref(false);
 
 let wakeLockSentinel: WakeLockSentinel | null = null;
 
